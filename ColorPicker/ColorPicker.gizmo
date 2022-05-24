@@ -1,0 +1,107 @@
+#! C:/Program Files/Nuke13.0v6/nuke-13.0.6.dll -nx
+version 13.0 v6
+Gizmo {
+ inputs 0
+ help "\n<span style=\"font-size:18px\" style=\"color:#d99726\">01.========================================</span>\n\n<span style=\"font-size:18px\">The node is completely controlled by python code.</span>\n\n<span style=\"font-size:18px\">You only need to change one color parameter at will, all other knobs are dynamically linked and <span style=\"color:#ff4d4d\">live update.</span></span>\n\n<span style=\"font-size:18px\" style=\"color:#d99726\">02.========================================</span>\n\n<span style=\"font-size:18px\">Nuke's numerical precision mechanism will cause some floats to appear as different values.</span>\n\n<span style=\"font-size:18px\">For example, the <span style=\"color:#ff4d4d\">red</span> value in the knob tile_color is set to <span style=\"color:#ff4d4d\">0.003</span>, and the <span style=\"color:#ff4d4d\">red</span> value becomes <span style=\"color:#ff4d4d\">0</span> when the knob is turned on again. Don't worry, you can still use it normally.</span>\n\n<span style=\"font-size:18px\" style=\"color:#d99726\">03.========================================</span>\n\n<span style=\"font-size:18px\">The color management of this node is <span style=\"color:#ff4d4d\">nuke-default lut</span>, not ACES.</span>\n<span style=\"font-size:18px\">The color output of this node is <span style=\"color:#ff4d4d\">linear</span>.</span>\n"
+ onCreate "\nn = nuke.thisNode()\nn\['n_cChip'].setFlag(nuke.STARTLINE)\nn\['s_cChip'].setFlag(nuke.STARTLINE)\nnuke.knobDefault(\"ColorPicker.nHex\", \"0x347FFFF\")\nnuke.knobDefault(\"ColorPicker.nInt\", \"55050239\")\nnuke.knobDefault(\"ColorPicker.sHex\", \"#1E90FF\")\n"
+ knobChanged "\nn = nuke.thisNode()\nk = nuke.thisKnob()\n\nwith n:\n    linear = nuke.toNode(\"toLinear\")\n    srgb = nuke.toNode(\"tosRGB\")\n    cConstant = nuke.toNode(\"ColorConstant\")\n    cSwitch = nuke.toNode(\"cSwitch\")\n\n#=======================================================================function\ndef numCorrect_1(numbers):\n    if isinstance(numbers, list):\n        for number in numbers:\n            if number < 0:\n                numbers\[numbers.index(number)] = 0\n            elif number > 1:\n                numbers\[numbers.index(number)] = 1\n        return numbers\n\n    else:\n        if numbers < 0:\n            numbers = 0\n        elif numbers > 1:\n            numbers = 1\n        return numbers\n\ndef numCorrect_255(r, g, b):\n    numbers = \[r, g, b]\n    for value in numbers:\n        if value < 0:\n            numbers\[numbers.index(value)] = 0\n        elif value > 255:\n            numbers\[numbers.index(value)] = 255\n        else:\n            numbers\[numbers.index(value)] = int(round(value))\n    return numbers\[0], numbers\[1], numbers\[2]\n\ndef check_hex(hex, num):\n    alphanumber = list(\"0123456789ABCDEFabcdef\")\n    str0x = \[\"0x\", \"0X\"]\n    strff = \[\"FF\", \"ff\", \"fF\", \"Ff\"]\n\n    if num == 0:\n        if hex\[:2] in str0x and hex\[-2:] in strff and len(hex) <= 10 and hex\[2:].isalnum():\n            for i in hex\[2:]:\n                if i not in alphanumber:\n                    return False\n        else:\n            return False\n\n    if num == 1:\n        if hex\[0] == \"#\" and len(hex) == 7 and hex\[1:].isalnum():\n            for i in hex\[1:]:\n                if i not in alphanumber:\n                    return False\n        else:\n            return False\n\ndef check_nInt(nInt):\n    if nInt.count(\".\") == 1:\n        if nInt.split(\".\")\[1] == \"0\":\n            nInt = nInt.split(\".\")\[0]\n            if nInt.isdigit():\n                if int(nInt) >= 255 and int(nInt) <= int('0xFFFFFFFF', 16):\n                    return True\n\n    elif nInt.isdigit():\n        if int(nInt) >= 255 and int(nInt) <= int('0xFFFFFFFF', 16):\n            return True\n\ndef float2Hex(r, g, b):\n    r = int(round(r*255))\n    g = int(round(g*255))\n    b = int(round(b*255))\n    return hex(int((\"0x\" + \"\{:02x\}\{:02x\}\{:02x\}\".format(r, g, b) + \"ff\"), 16))\n\ndef int2Hex(num):\n    nHex = hex(num)\n    return nHex\n\ndef srgb2Hex(r, g, b):\n    r = int(round(r))\n    g = int(round(g))\n    b = int(round(b))\n    return \"#\" + \"\{:02x\}\{:02x\}\{:02x\}\".format(r, g, b)\n\ndef shex2Int(n, sHex):\n    n\['sR_cChip'].setValue(int(\"0x\" + sHex\[1:3] + \"0000ff\", 16))\n    n\['sG_cChip'].setValue(int(\"0x\" + sHex\[3:5] + \"00ff\", 16))\n    n\['sB_cChip'].setValue(int(\"0x\" + sHex\[5:7] + \"ff\", 16))\n\ndef num2Multiple(numbers):\n    if isinstance(numbers, list):\n        numbers.append(1.0)\n    else:\n        numbers = \[numbers, numbers, numbers, 1.0]\n\n    return numbers\n\ndef sglOrMultiple(n, r, g, b):\n    if n\['float'].singleValue() and (r==g and r==b and g==b):\n        return r\n    else:\n        return r, g, b\n\ndef convCase(case, num, f):\n    if f == 0:\n        case = str(case)\[:num] + str(case)\[num:].upper()\n    else:\n        case = str(case)\[:num] + str(case)\[num:].lower()\n    return case\n\ndef checkL_tile(n, nInt, sHex):\n    if n\['link_Tile'].getValue() == False:\n        n\['tile_color'].setValue(nInt)\n    else:\n        n\['tile_color'].setValue(int(\"0x\" + sHex\[1:] + \"ff\", 16))\n\n#===========================================================================step\ndef linear2sRGB(cConstant, fRGB, cSwitch, srgb, n, nInt, check=None):\n    cConstant\['color'].setValue(num2Multiple(fRGB))\n    cSwitch\['which'].setValue(0)\n\n    sR = int(round(srgb.sample('red', 0, 0)*255))\n    sG = int(round(srgb.sample('green', 0, 0)*255))\n    sB = int(round(srgb.sample('blue', 0, 0)*255))\n    sHex = srgb2Hex(sR, sG, sB)\n\n    n\['sR'].setValue(sR)\n    n\['sG'].setValue(sG)\n    n\['sB'].setValue(sB)\n    n\['sHex'].setValue(convCase(sHex, 1, n\['case_2'].getValue()))\n    n\['check_sHex'].setValue(\" \")\n    n\['s_cChip'].setValue(int(\"0x\" + sHex\[1:] + \"ff\", 16))\n    shex2Int(n, sHex)\n\n    if check == None:\n        checkL_tile(n, nInt, sHex)\n\ndef srgb2Linear(cConstant, sR, sG, sB, cSwitch, linear, n, sHex, check=None):\n    cConstant\['color'].setValue(\[sR/255, sG/255, sB/255, 1.0])\n    cSwitch\['which'].setValue(1)\n    fR = linear.sample('red', 0, 0)\n    fG = linear.sample('green', 0, 0)\n    fB = linear.sample('blue', 0, 0)\n    nHex = float2Hex(fR, fG, fB)\n    nInt = int(nHex, 16)\n\n    n\['float'].setValue(sglOrMultiple(n, fR, fG, fB))\n    n\['nHex'].setValue(convCase(nHex, 2, n\['case_1'].getValue()))\n    n\['nInt'].setValue(str(nInt))\n    n\['check_n'].setValue(\" \")\n    n\['n_cChip'].setValue(nInt)\n\n    if check == None:\n        checkL_tile(n, nInt, sHex)\n\n\"\"\"\n================================================================================\n================================================================================\n================================================================================\n\"\"\"\ntry:\n    if k.name() == \"float\":\n        #==========float\n        fRGB = numCorrect_1(n\['float'].getValue())\n        n\['float'].setValue(fRGB)\n\n        if n\['float'].singleValue():\n            fR, fG, fB = fRGB, fRGB, fRGB\n        else:\n            fR, fG, fB = fRGB\[0], fRGB\[1], fRGB\[2]\n\n        nHex = float2Hex(fR, fG, fB)\n        nInt = int(nHex, 16)\n\n        n\['nHex'].setValue(convCase(nHex, 2, n\['case_1'].getValue()))\n        n\['nInt'].setValue(str(nInt))\n        n\['check_n'].setValue(\" \")\n        n\['n_cChip'].setValue(nInt)\n\n        #==========sRGB\n        linear2sRGB(cConstant, fRGB, cSwitch, srgb, n, nInt)\n\n    elif k.name() == \"nHex\":\n        if check_hex(n\['nHex'].getValue(), 0) != False:\n            #==========float\n            nHex = hex(int(n\['nHex'].getValue(), 16))\n            n\['nHex'].setValue(convCase(nHex, 2, n\['case_1'].getValue()))\n            nHex_10 = \"\{:#010x\}\".format(int(n\['nHex'].getValue(), 16))\n\n            fR = int(nHex_10\[2:4], 16)/255\n            fG = int(nHex_10\[4:6], 16)/255\n            fB = int(nHex_10\[6:8], 16)/255\n            fRGB = \[fR, fG, fB]\n            nInt = int(n\['nHex'].getValue(), 16)\n\n            n\['float'].setValue(sglOrMultiple(n, fR, fG, fB))\n            n\['nInt'].setValue(str(nInt))\n            n\['check_n'].setValue(\" \")\n            n\['n_cChip'].setValue(nInt)\n\n            #==========sRGB\n            linear2sRGB(cConstant, fRGB, cSwitch, srgb, n, nInt)\n        else:\n            m1 = \"<span style='color:#FFE500'>The&nbsp;&nbsp;</span>\"\n            m2 = str(n\['nHex'].getValue())\n            m3 = \"<span style='color:#FFE500'>&nbsp;&nbsp;is invalid.</span>\"\n            sM = m1 + m2 + m3\n            n\['check_n'].setValue(sM)\n\n    elif k.name() == \"nInt\":\n        if check_nInt(n\['nInt'].getValue()) == True:\n            #==========float\n            nInt = int(float(n\['nInt'].getValue()))\n            n\['nInt'].setValue(str(nInt))\n\n            nHex_10 = \"\{:#010x\}\".format(nInt)\n            fR = int(nHex_10\[2:4], 16)/255\n            fG = int(nHex_10\[4:6], 16)/255\n            fB = int(nHex_10\[6:8], 16)/255\n            fRGB = \[fR, fG, fB]\n            nHex = int2Hex(nInt)\n\n            n\['float'].setValue(sglOrMultiple(n, fR, fG, fB))\n            n\['nHex'].setValue(convCase(nHex, 2, n\['case_1'].getValue()))\n            n\['check_n'].setValue(\" \")\n            n\['n_cChip'].setValue(nInt)\n\n            #==========sRGB\n            linear2sRGB(cConstant, fRGB, cSwitch, srgb, n, nInt)\n        else:\n            m1 = \"<span style='color:#FFE500'>The&nbsp;&nbsp;</span>\"\n            m2 = str(n\['nInt'].getValue())\n            m3 = \"<span style='color:#FFE500'>&nbsp;&nbsp;is invalid.</span>\"\n            sM = m1 + m2 + m3\n            n\['check_n'].setValue(sM)\n\n    elif k.name() == \"n_cChip\":\n        #==========float\n        nInt = int(n\['n_cChip'].getValue())\n\n        nHex_10 = \"\{:#010x\}\".format(nInt)\n        fR = int(nHex_10\[2:4], 16)/255\n        fG = int(nHex_10\[4:6], 16)/255\n        fB = int(nHex_10\[6:8], 16)/255\n        fRGB = \[fR, fG, fB]\n        nHex = int2Hex(nInt)\n\n        n\['float'].setValue(sglOrMultiple(n, fR, fG, fB))\n        n\['nHex'].setValue(convCase(nHex, 2, n\['case_1'].getValue()))\n        n\['nInt'].setValue(str(nInt))\n        n\['check_n'].setValue(\" \")\n\n        #==========sRGB\n        linear2sRGB(cConstant, fRGB, cSwitch, srgb, n, nInt)\n\n    #=====================================================================tile_color\n    elif k.name() == \"tile_color\":\n        nInt = int(n\['tile_color'].getValue())\n\n        if n\['link_Tile'].getValue() == False:\n            #==========float\n            nHex_10 = \"\{:#010x\}\".format(nInt)\n            fR = int(nHex_10\[2:4], 16)/255\n            fG = int(nHex_10\[4:6], 16)/255\n            fB = int(nHex_10\[6:8], 16)/255\n            fRGB = \[fR, fG, fB]\n            nHex = int2Hex(nInt)\n\n            n\['float'].setValue(sglOrMultiple(n, fR, fG, fB))\n            n\['nHex'].setValue(convCase(nHex, 2, n\['case_1'].getValue()))\n            n\['nInt'].setValue(str(nInt))\n            n\['check_n'].setValue(\" \")\n            n\['n_cChip'].setValue(nInt)\n\n            #==========sRGB\n            linear2sRGB(cConstant, fRGB, cSwitch, srgb, n, nInt, 1)\n        else:\n            #==========sRGB\n            sHex = \"#\" + \"\{:08x\}\".format(nInt)\[:6]\n            sR = int(sHex\[1:3], 16)\n            sG = int(sHex\[3:5], 16)\n            sB = int(sHex\[5:7], 16)\n\n            n\['sR'].setValue(sR)\n            n\['sG'].setValue(sG)\n            n\['sB'].setValue(sB)\n            n\['sHex'].setValue(convCase(sHex, 1, n\['case_2'].getValue()))\n            n\['check_sHex'].setValue(\" \")\n            n\['s_cChip'].setValue(nInt)\n            shex2Int(n, sHex)\n\n            #==========float\n            srgb2Linear(cConstant, sR, sG, sB, cSwitch, linear, n, sHex, 1)\n\n    #===============================================================================\n    elif k.name() in \['sR', 'sG', 'sB']:\n        #==========sRGB\n        sR, sG, sB = n\['sR'].getValue(), n\['sG'].getValue(), n\['sB'].getValue()\n        sR, sG, sB = numCorrect_255(sR, sG, sB)\n        sHex = srgb2Hex(sR, sG, sB)\n\n        n\['sR'].setValue(sR)\n        n\['sG'].setValue(sG)\n        n\['sB'].setValue(sB)\n        n\['sHex'].setValue(convCase(sHex, 1, n\['case_2'].getValue()))\n        n\['check_sHex'].setValue(\" \")\n        n\['s_cChip'].setValue(int(\"0x\" + sHex\[1:] + \"ff\", 16))\n        shex2Int(n, sHex)\n\n        #==========float\n        srgb2Linear(cConstant, sR, sG, sB, cSwitch, linear, n, sHex)\n\n    elif k.name() == \"sHex\":\n        if check_hex(n\['sHex'].getValue(), 1) != False:\n            #==========sRGB\n            n\['sHex'].setValue(convCase(n\['sHex'].getValue(), 1 , n\['case_2'].getValue()))\n            sHex = n\['sHex'].getValue()\n\n            sR = int(sHex\[1:3], 16)\n            sG = int(sHex\[3:5], 16)\n            sB = int(sHex\[5:7], 16)\n\n            n\['sR'].setValue(sR)\n            n\['sG'].setValue(sG)\n            n\['sB'].setValue(sB)\n            n\['check_sHex'].setValue(\" \")\n            n\['s_cChip'].setValue(int(\"0x\" + sHex\[1:] + \"ff\", 16))\n            shex2Int(n, sHex)\n\n            #==========float\n            srgb2Linear(cConstant, sR, sG, sB, cSwitch, linear, n, sHex)\n        else:\n            m1 = \"<span style='color:#FFE500'>The&nbsp;&nbsp;</span>\"\n            m2 = str(n\['sHex'].getValue())\n            m3 = \"<span style='color:#FFE500'>&nbsp;&nbsp;is invalid.</span>\"\n            sM = m1 + m2 + m3\n            n\['check_sHex'].setValue(sM)\n\n    elif k.name() == \"s_cChip\":\n        #==========sRGB\n        sHex = \"#\" + \"\{:08x\}\".format(int(n\['s_cChip'].getValue()))\[:6]\n\n        sR = int(sHex\[1:3], 16)\n        sG = int(sHex\[3:5], 16)\n        sB = int(sHex\[5:7], 16)\n\n        n\['sR'].setValue(sR)\n        n\['sG'].setValue(sG)\n        n\['sB'].setValue(sB)\n        n\['sHex'].setValue(convCase(sHex, 1, n\['case_2'].getValue()))\n        n\['check_sHex'].setValue(\" \")\n        shex2Int(n, sHex)\n\n        #==========float\n        srgb2Linear(cConstant, sR, sG, sB, cSwitch, linear, n, sHex)\n\n    elif k.name() == \"link_Tile\":\n        if k.getValue() == True:\n            n\['tile_color'].setValue(int(n\['s_cChip'].getValue()))\n            n\['linkSymbol'].setEnabled(True)\n        else:\n            n\['tile_color'].setValue(int(n\['n_cChip'].getValue()))\n            n\['linkSymbol'].setEnabled(False)\n\n    #====================================================================otherActons\n    elif k.name() == \"case_1\":\n        n\['nHex'].setValue(convCase(n\['nHex'].getValue(), 2, k.getValue()))\n\n    elif k.name() == \"case_2\":\n        n\['sHex'].setValue(convCase(n\['sHex'].getValue(), 1, k.getValue()))\nexcept:\n    pass\n"
+ tile_color 0x1e90ffff
+ label "\[value sHex]"
+ note_font Verdana
+ note_font_color 0xff
+ lock_connections true
+ addUserKnob {20 colorPicker l "Color Picker"}
+ addUserKnob {26 colorPicker_title l " " T "<b><span style=\"font-size:50px\">Color Picker</span></b>v1.0<b><span style=\"font-size:18px\"> by Lundy Hu</span></b>"}
+ addUserKnob {26 emoji l "" t "Plam tree" -STARTLINE T "<span style='font-size:50px;'>&#x1F334;</span>"}
+ addUserKnob {26 workingSpace l "" t "S(Hotkey)&nbsp;&minus;&nbsp;Project&nbsp;Settings&nbsp;&minus;&nbsp;default&nbsp;LUT&nbsp;settings&nbsp;&minus;&nbsp;working&nbsp;space&nbsp;&nbsp;&gt;" +STARTLINE}
+ addUserKnob {26 spacer_3 l "" +STARTLINE T " "}
+ addUserKnob {40 n_cChip l Linear t "\nNuke's working space is locked to linear in order for it to be able to obey Grassman's Laws.\n\nThe default working space for Nuke's colour management, whether native or OCIO, while using the 'nuke-default' configuration, is linear. Other OCIO configurations may use different colorspaces for the working space.\n\nColor range: 0-1\n"}
+ n_cChip 0x347ffff
+ addUserKnob {18 float l Float}
+ float {0.01298303064 0.278894335 1}
+ addUserKnob {6 float_panelDropped l "panel dropped state" +HIDDEN +STARTLINE}
+ float_panelDropped true
+ addUserKnob {26 fRange l " " t "Color range: 0-1" +DISABLED T 0-1}
+ addUserKnob {26 spacer_1 l "" +STARTLINE T " "}
+ addUserKnob {1 nHex l Hex t "Hex representation format in nuke:<span>&nbsp;</span>\n\n0xRRGGBBAA\n\nR = Red\nG = Green\nB = Blue\nA = Alpha"}
+ nHex 0x347FFFF
+ addUserKnob {4 case_1 l "" t "Convert case" -STARTLINE M {UPPER lower "" "" "" "" "" "" "" "" "" ""}}
+ addUserKnob {1 nInt l Int t "Decimal representation in nuke.\nOnly integer is support."}
+ nInt 55050239
+ addUserKnob {26 decimal l "<b>= </b>" -STARTLINE +DISABLED T "Decimal "}
+ addUserKnob {26 check_n l " " T " "}
+ addUserKnob {26 convSymbol l " " +DISABLED T "<span style='font-size:50px;' style=\"font-weight:bold;\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&uarr;&darr;</span>"}
+ addUserKnob {40 s_cChip l sRGB t "sRGB (~2.20)\n\nColor range: 0-1"}
+ s_cChip 0x1e90ffff
+ addUserKnob {26 linkSymbol l " " -STARTLINE T "<b>= </b>"}
+ addUserKnob {6 link_Tile l tile_color t "Link with the tile_color of this node.\n\nThe color space of tile_color defaults to linear." -STARTLINE}
+ link_Tile true
+ addUserKnob {7 sR l "R <b><font color=\"#f23030\">•</font></b>" t "red value" R 0 255}
+ sR 30
+ addUserKnob {26 dotR l "" -STARTLINE +DISABLED T <b>•</b>}
+ addUserKnob {40 sR_cChip l "" t "Channel: Red" -STARTLINE +DISABLED}
+ sR_cChip 0x1e0000ff
+ addUserKnob {7 sG l "G <b><font color=\"#17bf17\">•</font></b>" t "green value" R 0 255}
+ sG 144
+ addUserKnob {26 dotG l "" -STARTLINE +DISABLED T <b>•</b>}
+ addUserKnob {40 sG_cChip l "" t "Channel: Green" -STARTLINE +DISABLED}
+ sG_cChip 0x9000ff
+ addUserKnob {7 sB l "B <b><font color=\"#1e90ff\">•</font></b>" t "blue value" R 0 255}
+ sB 255
+ addUserKnob {26 dotB l "" -STARTLINE +DISABLED T <b>•</b>}
+ addUserKnob {40 sB_cChip l "" t "Channel: Blue" -STARTLINE +DISABLED}
+ sB_cChip 0xffff
+ addUserKnob {26 s8Range l 8bit t "Color range: 0-255" +DISABLED T 0-255}
+ addUserKnob {26 spacer_5 l "" +STARTLINE T " "}
+ addUserKnob {1 sHex l Hex t "Hex representation format in html:<span>&nbsp;</span>\n\n#RRGGBB <span>&nbsp;</span>\n\nR = Red\nG = Green\nB = Blue"}
+ sHex #1E90FF
+ addUserKnob {4 case_2 l "" t "Convert case" -STARTLINE M {UPPER lower "" "" "" "" "" ""}}
+ addUserKnob {26 check_sHex l " " T " "}
+ addUserKnob {26 viewer l "" +STARTLINE}
+ addUserKnob {26 spacer_7 l "" +STARTLINE T " "}
+ addUserKnob {41 vformat l Format T ColorConstant.format}
+ addUserKnob {26 spacer_6 l "" +STARTLINE T "\n\n\n"}
+ addUserKnob {22 help_1 l Help t "<nobr>Click to open the help infomention.</nobr>" T "nuke.message('''\n<span style=\"font-size:18px\" style=\"color:#d99726\">01.========================================</span>\n\n<span style=\"font-size:18px\">The node is completely controlled by python code.</span>\n\n<span style=\"font-size:18px\">You only need to change one color parameter at will, all other knobs are dynamically linked and <span style=\"color:#ff4d4d\">live update.</span></span>\n\n<span style=\"font-size:18px\" style=\"color:#d99726\">02.========================================</span>\n\n<span style=\"font-size:18px\">Nuke's numerical precision mechanism will cause some floats to appear as different values.</span>\n\n<span style=\"font-size:18px\">For example, the <span style=\"color:#ff4d4d\">red</span> value in the knob tile_color is set to <span style=\"color:#ff4d4d\">0.003</span>, and the <span style=\"color:#ff4d4d\">red</span> value becomes <span style=\"color:#ff4d4d\">0</span> when the knob is turned on again. Don't worry, you can still use it normally.</span>\n\n<span style=\"font-size:18px\" style=\"color:#d99726\">03.========================================</span>\n\n<span style=\"font-size:18px\">The color management of this node is <span style=\"color:#ff4d4d\">nuke-default lut</span>, not ACES.</span>\n<span style=\"font-size:18px\">The color output of this node is <span style=\"color:#ff4d4d\">linear</span>.</span>\n''')" +STARTLINE}
+ addUserKnob {26 spacer_2 l "" -STARTLINE T " "}
+ addUserKnob {22 github l GitHub t "Click to open the website." -STARTLINE T "import webbrowser\nwebbrowser.open(\"https://github.com/isLundy/ColorPicker\")"}
+ addUserKnob {26 spacer_4 l "" -STARTLINE T " "}
+ addUserKnob {22 nukepedia l NukePedia t "Click to open the website." -STARTLINE T "import webbrowser\n\nwebbrowser.open(\"http://www.nukepedia.com/\")"}
+}
+ Constant {
+  inputs 0
+  color {0.1176470588 0.5647058824 1 1}
+  name ColorConstant
+  xpos -4
+  ypos -78
+ }
+set Nc98fb000 [stack 0]
+ Colorspace {
+  colorspace_in sRGB
+  name toLinear
+  label "\[value colorspace_in] > \[python \{\"Linear\" if nuke.thisNode()\['colorspace_out'].value() == \"RGB\" else nuke.thisNode()\['colorspace_out'].value()\}]"
+  xpos -175
+  ypos 107.5
+ }
+push $Nc98fb000
+ Switch {
+  inputs 2
+  which 1
+  name cSwitch
+  label "\[value which]"
+  xpos -4
+  ypos 107.5
+ }
+ Output {
+  name Output1
+  xpos -4
+  ypos 279
+ }
+push $Nc98fb000
+ Colorspace {
+  colorspace_out sRGB
+  name tosRGB
+  label "\[python \{\"Linear\" if nuke.thisNode()\['colorspace_in'].value() == \"RGB\" else nuke.thisNode()\['colorspace_in'].value()\}] > \[value colorspace_out]"
+  xpos 167
+  ypos 107.5
+ }
+end_group
