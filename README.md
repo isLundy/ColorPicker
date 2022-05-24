@@ -14,5 +14,5 @@ The ColorPicker gizmo for Nuke.
 You only need to change one color parameter at will, all other knobs are dynamically linked and live update.
 
 
-<img src="docs/ColorPicker_Pane.png">
+<img src="docs/ColorPicker_Panel.png">
 
