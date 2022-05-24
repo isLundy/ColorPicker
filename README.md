@@ -1,8 +1,17 @@
-# ColorPicker
+
+
+<h1 align="center">
+  <img src="Gizmo/ColorPicker.png">
+  <br>ColorPicker<br>
+</h1>
+
 The ColorPicker gizmo for Nuke.
 
-The node is completely controlled by python code.
+- You can get the color format you want for nuke or html, including hex, decimal, float.
+
+- The node is completely controlled by python code.
 You only need to change one color parameter at will, all other knobs are dynamically linked and live update.
 
 
-![ColorPicker_Panel](https://user-images.githubusercontent.com/33220975/170028052-6f68a47c-bfb4-449f-9dcb-c957a7ca73d2.png)
+<img src="docs/ColorPicker_Panel.png">
+
