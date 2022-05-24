@@ -1,7 +1,7 @@
 
 
 <h1 align="center">
-  <img src="Gizmo/ColorPicker.png">
+  <img src="ColorPicker/ColorPicker.png">
   <br>ColorPicker<br>
 </h1>
 
