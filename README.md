@@ -10,7 +10,7 @@ The ColorPicker gizmo for Nuke.
 - You can get the color format you want for nuke or html, including hex, decimal, float.  
 (Convert rgb to hex or hex to rgb.)
 
-- The node is completely controlled by <span style="color:blue">python</span> code.
+- The node is completely controlled by python code.
 You only need to change one color parameter at will, all other knobs are dynamically linked and live update.
 
 
