@@ -14,4 +14,4 @@ You only need to change one color parameter at will, all other knobs are dynamic
 
 <img src="docs/ColorPicker_Panel_2.png">
 
-#License
+# License
