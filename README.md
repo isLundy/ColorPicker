@@ -15,3 +15,5 @@ You only need to change one color parameter at will, all other knobs are dynamic
 <img src="docs/ColorPicker_Panel.png">
 
 # License
+
+See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).
