@@ -2,7 +2,7 @@
 
 <h1 align="center">
   <img src="ColorPicker/ColorPicker.png">
-  <br>ColorPicker<br>
+  <br>Color Picker<br>
 </h1>
 
 The ColorPicker gizmo for Nuke.
