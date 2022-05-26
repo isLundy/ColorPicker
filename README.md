@@ -11,7 +11,7 @@ The ColorPicker gizmo for Nuke.
 - The node is completely controlled by python code.
 You only need to change one color parameter at will, all other knobs are dynamically linked and live update.
 
-Video:[https://vimeo.com/713954643](https://vimeo.com/713954643)
+Video: [https://vimeo.com/713954643](https://vimeo.com/713954643)
 
 
 <img src="docs/ColorPicker_Panel.png">
