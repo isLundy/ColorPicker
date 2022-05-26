@@ -11,7 +11,7 @@ Gizmo {
  note_font_color 0xff
  lock_connections true
  addUserKnob {20 colorPicker l "Color Picker"}
- addUserKnob {26 colorPicker_title l " " T "<b><span style=\"font-size:50px\">Color Picker</span></b>v2.0<b><span style=\"font-size:18px\"> by Lundy Hu</span></b>"}
+ addUserKnob {26 colorPicker_title l " " T "<b><span style=\"font-size:50px\">Color Picker</span></b>v2.1<b><span style=\"font-size:18px\"> by Lundy Hu</span></b>"}
  addUserKnob {26 emoji l "" t "Plam tree" -STARTLINE T "<span style='font-size:50px;'>&#x1F334;</span>"}
  addUserKnob {26 workingSpace l "" t "S(Hotkey)&nbsp;&minus;&nbsp;Project&nbsp;Settings&nbsp;&minus;&nbsp;default&nbsp;LUT&nbsp;settings&nbsp;&minus;&nbsp;working&nbsp;space&nbsp;&nbsp;&gt;" +STARTLINE}
  addUserKnob {26 spacer_3 l "" +STARTLINE T " "}
@@ -74,7 +74,7 @@ Gizmo {
   xpos -4
   ypos -78
  }
-set Nb17d6800 [stack 0]
+set N46ed6800 [stack 0]
  Colorspace {
   colorspace_in sRGB
   name toLinear
@@ -82,7 +82,7 @@ set Nb17d6800 [stack 0]
   xpos -175
   ypos 107.5
  }
-push $Nb17d6800
+push $N46ed6800
  Switch {
   inputs 2
   which 1
@@ -96,7 +96,7 @@ push $Nb17d6800
   xpos -4
   ypos 279
  }
-push $Nb17d6800
+push $N46ed6800
  Colorspace {
   colorspace_out sRGB
   name tosRGB
