@@ -65,7 +65,7 @@ Gizmo {
  addUserKnob {26 spacer_2 l "" -STARTLINE T " "}
  addUserKnob {22 github l GitHub t "Click to open the website." -STARTLINE T "import webbrowser\nwebbrowser.open(\"https://github.com/isLundy/ColorPicker\")"}
  addUserKnob {26 spacer_4 l "" -STARTLINE T " "}
- addUserKnob {22 nukepedia l NukePedia t "Click to open the website." -STARTLINE T "import webbrowser\n\nwebbrowser.open(\"http://www.nukepedia.com/gizmos/colour/color-picker\")"}
+ addUserKnob {22 nukepedia l NukePedia t "Click to open the website." -STARTLINE T "import webbrowser\n\nwebbrowser.open(\"https://www.nukepedia.com/gizmos/colour/color-picker\")"}
 }
  Constant {
   inputs 0
@@ -74,7 +74,7 @@ Gizmo {
   xpos -4
   ypos -78
  }
-set N9e523400 [stack 0]
+set Nb17d6800 [stack 0]
  Colorspace {
   colorspace_in sRGB
   name toLinear
@@ -82,7 +82,7 @@ set N9e523400 [stack 0]
   xpos -175
   ypos 107.5
  }
-push $N9e523400
+push $Nb17d6800
  Switch {
   inputs 2
   which 1
@@ -96,7 +96,7 @@ push $N9e523400
   xpos -4
   ypos 279
  }
-push $N9e523400
+push $Nb17d6800
  Colorspace {
   colorspace_out sRGB
   name tosRGB
