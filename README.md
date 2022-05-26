@@ -18,4 +18,4 @@ Video: [https://vimeo.com/713954643](https://vimeo.com/713954643)
 
 ## License
 
-See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).
+See the [LICENSE](LICENSE.md) file for license rights and limitations.
