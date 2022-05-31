@@ -11,8 +11,8 @@ Gizmo {
  note_font_color 0xff
  lock_connections true
  addUserKnob {20 colorPicker l "Color Picker"}
- addUserKnob {26 colorPicker_title l " " T "<b><span style=\"font-size:50px\">Color Picker</span></b>v2.2<b><span style=\"font-size:18px\"> by Lundy Hu</span></b>"}
- addUserKnob {26 emoji l "" t "Plam tree" -STARTLINE T "<span style='font-size:50px;'>&#x1F334;</span>"}
+ addUserKnob {26 colorPicker_title l " " T "<b><span style=\"font-size:49px\">Color Picker</span><span style=\"font-size:18px\"> by Lundy Hu</span></b>"}
+ addUserKnob {26 version l v2.3 t "Plam tree" -STARTLINE T "<span style='font-size:50px;'>&#x1F334;</span>"}
  addUserKnob {26 workingSpace l "" t "S(Hotkey)&nbsp;&minus;&nbsp;Project&nbsp;Settings&nbsp;&minus;&nbsp;default&nbsp;LUT&nbsp;settings&nbsp;&minus;&nbsp;working&nbsp;space&nbsp;&nbsp;&gt;" +STARTLINE}
  addUserKnob {26 spacer_3 l "" +STARTLINE T " "}
  addUserKnob {40 n_cChip l Linear t "\nNuke's working space is locked to linear in order for it to be able to obey Grassman's Laws.\n\nThe default working space for Nuke's colour management, whether native or OCIO, while using the 'nuke-default' configuration, is linear. Other OCIO configurations may use different colorspaces for the working space.\n\nColor range: 0-1\n"}
@@ -66,6 +66,8 @@ Gizmo {
  addUserKnob {22 github l GitHub t "Click to open the website." -STARTLINE T "import webbrowser\nwebbrowser.open(\"https://github.com/isLundy/ColorPicker\")"}
  addUserKnob {26 spacer_4 l "" -STARTLINE T " "}
  addUserKnob {22 nukepedia l NukePedia t "Click to open the website." -STARTLINE T "import webbrowser\n\nwebbrowser.open(\"https://www.nukepedia.com/gizmos/colour/color-picker\")"}
+ addUserKnob {26 spacer_8 l "" -STARTLINE T " "}
+ addUserKnob {22 check_for_updates l "Check for updates" -STARTLINE T "import requests\n\nn = nuke.thisNode()\nurl = \"https://api.github.com/repos/isLundy/ColorPicker/releases/latest\"\n\ntry:\n    response = requests.get(url)\nexcept:\n    print(response.status_code)\n    nuke.message(\"<nobr><span style='font-size:18px'>Please check your <span style='color:#ff4d4d'>internet connection!</span></span></nobr>\")\nelse:\n    curVer = float(n\['version'].label().lstrip(\"v\"))\n    latVer = float(response.json()\['tag_name'].lstrip(\"v\"))\n\n    if curVer < latVer:\n        print(curVer, latVer)\n        msg1 = (\"<nobr><span style='font-size:18px'>The current version is <span style='color:#fcb434;'>v\{\}</span>. The latest version is <span style='color:#fcb434;'>v\{\}</span>.</span></nobr>\".format(curVer, latVer))\n        msg2 = (\"<nobr><p style='font-size:18px'>You can download the <span style='color:#fcb434;'>ColorPicker_v\{\}.zip</span> at <a href='https://github.com/isLundy/ColorPicker/releases/latest' style='color:#fcb434;'>here</a>.</p></nobr><p>\".format(latVer))\n        msg = msg1 + msg2\n        nuke.message(msg)\n    else:\n        nuke.message(\"<nobr><span style='font-size:18px'>The current version <span style='color:#fcb434;'>v\{\}</span> is the latest version.</span></nobr><p>\".format(curVer))"}
 }
  Constant {
   inputs 0
@@ -74,7 +76,7 @@ Gizmo {
   xpos -4
   ypos -78
  }
-set Ne8e45400 [stack 0]
+set Ne6013000 [stack 0]
  Colorspace {
   colorspace_in sRGB
   name toLinear
@@ -82,7 +84,7 @@ set Ne8e45400 [stack 0]
   xpos -175
   ypos 107.5
  }
-push $Ne8e45400
+push $Ne6013000
  Switch {
   inputs 2
   which 1
@@ -96,7 +98,7 @@ push $Ne8e45400
   xpos -4
   ypos 279
  }
-push $Ne8e45400
+push $Ne6013000
  Colorspace {
   colorspace_out sRGB
   name tosRGB
