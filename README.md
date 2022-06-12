@@ -14,7 +14,7 @@ You only need to change one color parameter at will, all other knobs are dynamic
 Video: [https://vimeo.com/713954643](https://vimeo.com/713954643)
 
 
-<img src="docs/ColorPicker_Panel.png">
+<img src="docs/ColorPicker_panel.png">
 
 ## License
 
