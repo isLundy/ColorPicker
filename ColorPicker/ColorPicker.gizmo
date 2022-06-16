@@ -10,7 +10,7 @@ Gizmo {
  lock_connections true
  addUserKnob {20 colorPicker l "Color Picker"}
  addUserKnob {26 colorPicker_title l " " T "<b><span style=\"font-size:49px\">Color Picker</span><span style=\"font-size:18px\"> by Lundy Hu</span></b>"}
- addUserKnob {26 version l v3.0 t "Plam tree" -STARTLINE T "<span style='font-size:50px;'>&#x1F334;</span>"}
+ addUserKnob {26 version l v2.4 t "Plam tree" -STARTLINE T "<span style='font-size:50px;'>&#x1F334;</span>"}
  addUserKnob {1 current_tile_color l "tile_color " t "\nDecimal representation in nuke.\nMust be an integer.\n\nrange: 255 - 4294967295\n" -STARTLINE}
  current_tile_color 512819199
  addUserKnob {26 spacer_3 l "" +STARTLINE}
@@ -90,7 +90,7 @@ Gizmo {
   xpos -4
   ypos -78
  }
-set N549e7400 [stack 0]
+set Nc9e87400 [stack 0]
  Colorspace {
   colorspace_in sRGB
   name toLinear
@@ -99,7 +99,7 @@ set N549e7400 [stack 0]
   xpos -175
   ypos 107.5
  }
-push $N549e7400
+push $Nc9e87400
  Switch {
   inputs 2
   which 1
@@ -113,7 +113,7 @@ push $N549e7400
   xpos -4
   ypos 279
  }
-push $N549e7400
+push $Nc9e87400
  Colorspace {
   colorspace_out sRGB
   name toOther
